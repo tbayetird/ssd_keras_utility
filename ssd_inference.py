@@ -246,14 +246,14 @@ def inference_on_video(model_config,video_path,Display=True,change_save_dir=Fals
 def inference_on_big_video(model_config,video_path,output_name,batch_size):
     #Divide original videos into batches
     folder_path=vd.divideVideo(video_path,batch_size)
-    if not (fn.exist(folder_path,'outputs')):
-        os.mkdir(os.path.join(folder_path,'outputs'))
-    #Treat all batches
-    for (i,batch) in enumerate(fn.findAllIn(folder_path)):
-        print('[INFO] : Processing Batch number {}'.format(i))
-        vid_path=os.path.join(folder_path,batch)
-        inference_on_video(model_config,vid_path,False,True)
-    vd.stitch_videos(os.path.join(folder_path,'ouputs'),output_name)
+    # if not (fn.exist(folder_path,'outputs')):
+    #     os.mkdir(os.path.join(folder_path,'outputs'))
+    # #Treat all batches
+    # for (i,batch) in enumerate(fn.findAllIn(folder_path)):
+    #     print('[INFO] : Processing Batch number {}'.format(i))
+    #     vid_path=os.path.join(folder_path,batch)
+    #     inference_on_video(model_config,vid_path,False,True)
+    vd.stitch_videos(os.path.join(folder_path,'outputs'),output_name)
 
 
 # inference_on_image(ssd300,'D:\\datas\\pirogues-mer\\test\\DJI_0099.JPG_0_4.JPG')

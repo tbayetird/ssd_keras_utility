@@ -106,7 +106,8 @@ def stitch_videos(videoFolder,videoName):
     first=True
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     for (i,vid) in enumerate(fn.findAllIn(videoFolder)):
-        if not (fn.ext(vid)=='mp4')
+        if not (fn.ext(vid)=='mp4'):
+            continue
         print('[INFO] Stitching {}'.format(vid))
         vs=cv2.VideoCapture(os.path.join(videoFolder,vid))
         while(vs.isOpened()):
