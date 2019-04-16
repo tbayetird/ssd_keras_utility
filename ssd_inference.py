@@ -5,6 +5,7 @@ from keras.optimizers import Adam
 from imageio import imread
 import numpy as np
 import os, cv2
+import gc
 from matplotlib import pyplot as plt
 
 from models.keras_ssd300 import ssd_300
@@ -23,39 +24,7 @@ from data_generator.object_detection_2d_misc_utils import apply_inverse_transfor
 
 from config.models import ssd300_pirogues_mer
 from utils import filenav as fn
-
-## utility functions
-
-def handleVideoStreams(vs,save_dir,vidName,img_width,img_height):
-    orig_images = [] # Store the images here.
-    input_images = [] # Store resized versions of the images here.
-    ex=False
-    images_stock_name='imstock_'+vidName
-    if(fn.exist(save_dir,images_stock_name)):
-        print("[INFO] Loading existing video datas")
-        input_images = np.load(os.path.join(save_dir,images_stock_name))
-        ex=True
-
-    while(vs.isOpened()):
-        ok,frame=vs.read()
-        if not ok:
-            break
-        orig_images.append(frame)
-        vidShape=frame.shape[:2]
-        if not ex:
-            frame = cv2.resize(frame,(img_width,img_height),interpolation=cv2.INTER_AREA)
-            input_images.append(frame)
-    # cv2.destroyAllWindows()
-    input_images = np.array(input_images)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(os.path.join(save_dir,vidName),
-                                fourcc,20.0,(vidShape[1],vidShape[0]))
-    if not ex:
-        np.save(os.path.join(save_dir,images_stock_name),input_images)
-    return [orig_images,input_images,out]
-
-## Inference Functions
-
+from utils import vidutils as vd
 
 def inference_on_folder(model_config,folder_path,SHOW_ALL=False):
     img_shape=model_config.IMG_SHAPE
@@ -181,13 +150,15 @@ def inference_on_image(model_config,image_path):
     plt.show()
 
 
-def inference_on_video(model_config,video_path):
+def inference_on_video(model_config,video_path,Display=True,change_save_dir=False):
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
     img_width = img_shape[1] # Width of the model input images
     img_channels = img_shape[2] # Number of color channels of the model input images
     normalize_coords = True
     save_dir = os.path.join(model_config.ROOT_FOLDER,'outputs')
+    if(change_save_dir):
+        save_dir=os.path.join(os.path.dirname(video_path),'outputs')
     video_name=video_path.split('\\')
     video_name=video_name[-1]
     ###################################
@@ -208,7 +179,8 @@ def inference_on_video(model_config,video_path):
     print("[INFO] Processing video stream...")
 
     vs = cv2.VideoCapture(video_path)
-    (orig_images,input_images,out)=handleVideoStreams(vs,save_dir,video_name,img_width,img_height)
+    # (orig_images,input_images,out)=vd.handleVideoStreams(vs,save_dir,video_name,img_width,img_height)
+    (orig_images,input_images,out)=vd.handleVideoStreams(vs,save_dir,video_name,img_width,img_height)
     print('[DEBUG] Number of images : {}'.format(len(orig_images)))
     ###################################
     ### PREDICTING
@@ -257,18 +229,37 @@ def inference_on_video(model_config,video_path):
     ###################################
     ### DISPLAYING RESULTS
     ##################################
-    print("[INFO] Displaying results ")
-    for i in range(len(y_pred_decoded)):
-        img=orig_images[i]
-        cv2.imshow("video",img)
-        key = cv2.waitKey(50) & 0xFF
+    if(Display):
+        print("[INFO] Displaying results ")
+        for i in range(len(y_pred_decoded)):
+            img=orig_images[i]
+            cv2.imshow("video",img)
+            key = cv2.waitKey(50) & 0xFF
 
     vs.release()
     out.release()
     cv2.destroyAllWindows()
+    del(orig_images)
+    del(input_images)
+    gc.collect()
+
+def inference_on_big_video(model_config,video_path,output_name,batch_size):
+    #Divide original videos into batches
+    folder_path=vd.divideVideo(video_path,batch_size)
+    # if not (fn.exist(folder_path,'outputs')):
+    #     os.mkdir(os.path.join(folder_path,'outputs'))
+    # #Treat all batches
+    # for (i,batch) in enumerate(fn.findAllIn(folder_path)):
+    #     print('[INFO] : Processing Batch number {}'.format(i))
+    #     vid_path=os.path.join(folder_path,batch)
+    #     inference_on_video(model_config,vid_path,False,True)
+    vd.stitch_videos(os.path.join(folder_path,'outputs'),output_name)
+
 
 # inference_on_image(ssd300,'D:\\datas\\pirogues-mer\\test\\DJI_0099.JPG_0_4.JPG')
 # inference_on_folder(ssd300,'D:\\datas\\pirogues-mer\\test\\')
 # inference_on_folder(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\Images')
-inference_on_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4')
+# inference_on_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4')
 # inference_on_video(ssd300_pirogues_mer,'D:\\workspace\\Keras\ssd_keras\\data\\Frogger2.mp4')
+inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000)
+# vd.stitch_videos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0','full_stitched_vid.mp4')
