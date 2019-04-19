@@ -122,3 +122,24 @@ def stitch_videos(videoFolder,videoName):
             out.write(frame)
         vs.release()
     out.release()
+
+def screenshotVideos(videoPath,outputFolder,screenshotNames,freq,max=100000):
+    vs = cv2.VideoCapture(videoPath)
+    im_count=0
+    save_count=0
+    while(vs.isOpened()):
+        ok,frame = vs.read()
+        if not ok:
+            break
+        if (im_count==freq):
+            im_name = os.path.join(outputFolder,screenshotNames+'_{}'.format(save_count)+'.jpg')
+            print('[INFO] Savinf image {}'.format(im_name))
+            im_count=0
+            save_count+=1
+            cv2.imwrite(im_name,frame)
+        if(save_count==max):
+            break
+        im_count +=1
+    vs.release()
+
+screenshotVideos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','D:\\datas\\pirogues-mer\\videos_parrot\\Images','Disco_0_scr',50)
