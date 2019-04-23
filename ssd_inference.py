@@ -26,7 +26,11 @@ from config.models import ssd300_pirogues_mer
 from utils import filenav as fn
 from utils import vidutils as vd
 
-def inference_on_folder(model_config,folder_path,SHOW_ALL=False):
+def inference_on_folder(model_config,
+                        folder_path,
+                        SHOW_ALL=False,
+                        confidence_threshold=0.5
+                        ):
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
     img_width = img_shape[1] # Width of the model input images
@@ -56,11 +60,10 @@ def inference_on_folder(model_config,folder_path,SHOW_ALL=False):
     input_images = np.array(input_images)
     print("[INFO] making predictions ...  ")
     y_pred = model.predict(input_images)
-    confidence_threshold = 0.5
     y_pred_thresh = [y_pred[k][y_pred[k,:,1] > confidence_threshold] for k in range(y_pred.shape[0])]
 
     y_pred_decoded=decode_detections(y_pred,
-                                   confidence_thresh=0.5,
+                                   confidence_thresh=confidence_threshold,
                                    iou_threshold=0.4,
                                    top_k=200,
                                    normalize_coords=normalize_coords,
@@ -150,7 +153,11 @@ def inference_on_image(model_config,image_path):
     plt.show()
 
 
-def inference_on_video(model_config,video_path,Display=True,change_save_dir=False):
+def inference_on_video(model_config,
+                       video_path,
+                       Display=True,
+                       change_save_dir=False,
+                       confidence_threshold=0.5):
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
     img_width = img_shape[1] # Width of the model input images
@@ -193,7 +200,6 @@ def inference_on_video(model_config,video_path,Display=True,change_save_dir=Fals
     else:
         y_pred = model.predict(input_images)
         np.save(os.path.join(save_dir,predName),y_pred)
-    confidence_threshold=0.5
     y_pred_thresh = [y_pred[k][y_pred[k,:,1] > confidence_threshold] for k in range(y_pred.shape[0])]
 
     ###################################
@@ -201,7 +207,7 @@ def inference_on_video(model_config,video_path,Display=True,change_save_dir=Fals
     ##################################
     print("[INFO] Applying predictions ")
     y_pred_decoded=decode_detections(y_pred,
-                                   confidence_thresh=0.5,
+                                   confidence_thresh=confidence_threshold,
                                    iou_threshold=0.4,
                                    top_k=200,
                                    normalize_coords=normalize_coords,
@@ -243,16 +249,16 @@ def inference_on_video(model_config,video_path,Display=True,change_save_dir=Fals
     del(input_images)
     gc.collect()
 
-def inference_on_big_video(model_config,video_path,output_name,batch_size):
+def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_thresh):
     #Divide original videos into batches
     folder_path=vd.divideVideo(video_path,batch_size)
-    # if not (fn.exist(folder_path,'outputs')):
-    #     os.mkdir(os.path.join(folder_path,'outputs'))
-    # #Treat all batches
-    # for (i,batch) in enumerate(fn.findAllIn(folder_path)):
-    #     print('[INFO] : Processing Batch number {}'.format(i))
-    #     vid_path=os.path.join(folder_path,batch)
-    #     inference_on_video(model_config,vid_path,False,True)
+    if not (fn.exist(folder_path,'outputs')):
+        os.mkdir(os.path.join(folder_path,'outputs'))
+    #Treat all batches
+    for (i,batch) in enumerate(fn.findAllIn(folder_path)):
+        print('[INFO] : Processing Batch number {}'.format(i))
+        vid_path=os.path.join(folder_path,batch)
+        inference_on_video(model_config,vid_path,False,True,conf_thresh)
     vd.stitch_videos(os.path.join(folder_path,'outputs'),output_name)
 
 
@@ -261,5 +267,5 @@ def inference_on_big_video(model_config,video_path,output_name,batch_size):
 # inference_on_folder(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\Images')
 # inference_on_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4')
 # inference_on_video(ssd300_pirogues_mer,'D:\\workspace\\Keras\ssd_keras\\data\\Frogger2.mp4')
-inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000)
+# inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000)
 # vd.stitch_videos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0','full_stitched_vid.mp4')
