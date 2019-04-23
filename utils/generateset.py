@@ -1,4 +1,6 @@
 import glob, os
+import filenav as fn
+import shutil
 
 def YOLO_generate(dataset_path,destination_dir,percentage_test):
     # Create and/or truncate train.txt and test.txt
@@ -20,6 +22,29 @@ def YOLO_generate(dataset_path,destination_dir,percentage_test):
     close(file_train)
     close(file_test)
 
+## Generating a PascalVOC_like architecture from an image folder
+# image_folder : where to find the images to set up the architecture. Can be empty
+# dest_folder :  where to build the architecture. At default, image_folder.
+def PascalVOC_architecture_generate(image_folder,dest_folder=''):
+    if(dest_folder==''):
+        dest_folder=image_folder
+    if not (fn.exist(dest_folder,'Images')):
+        os.mkdir(os.path.join(dest_folder,'Images'))
+    if not (fn.exist(dest_folder,'ImageSets')):
+        os.mkdir(os.path.join(dest_folder,'Imagesets'))
+    if not (fn.exist(dest_folder,'Annotations')):
+        os.mkdir(os.path.join(dest_folder,'Annotations'))
+    for im in fn.findAllIn(image_folder):
+        im_path=os.path.join(image_folder,im)
+        new_path=os.path.join(dest_folder,'Images',im)
+        shutil.move(im_path,new_path)
+
+
+
+## Generating a PascalVOC-like sets for train, test and validation
+# dataset_path : path to the folder containing the images
+# destination : path to the folder that is to contain the sets
+# percentage_test : percentage of the data that is to be used as test set
 def PascalVOC_generate(dataset_path,destination_dir,percentage_test):
     file_train = open(os.path.join(destination_dir,'train.txt'), 'w')
     file_test = open(os.path.join(destination_dir,'test.txt'), 'w')
@@ -59,7 +84,7 @@ def PascalVOC_generate(dataset_path,destination_dir,percentage_test):
                 counter_2=counter_2+1
             counter = counter + 1
 
-
+# PascalVOC_architecture_generate('D:\\datas\\pirogues-mer\\test')
 # import argparse
 # ap = argparse.ArgumentParser()
 # ap.add_argument("-p", "--dataset_path", required=True,

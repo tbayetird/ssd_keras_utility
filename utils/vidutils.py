@@ -29,7 +29,7 @@ def handleVideoStreams(vs,save_dir,vidName,img_width,img_height):
     input_images = np.array(input_images)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(os.path.join(save_dir,vidName),
-                                fourcc,20.0,(vidShape[1],vidShape[0]))
+                                fourcc,24.0,(vidShape[1],vidShape[0]))
     if not ex:
         np.save(os.path.join(save_dir,images_stock_name),input_images)
     return [orig_images,input_images,out]
@@ -88,7 +88,7 @@ def divideVideo(videoPath,batchSize):
         if(im_count==0):
             vidShape=frame.shape[:2]
             out = cv2.VideoWriter(os.path.join(folderPath,batch_name),
-                                    fourcc,20.0,(vidShape[1],vidShape[0]))
+                                    fourcc,24.0,(vidShape[1],vidShape[0]))
 
         if(im_count==batchSize):
             im_count=0
@@ -117,7 +117,7 @@ def stitch_videos(videoFolder,videoName):
             vidShape=frame.shape[:2]
             if (first):
                 out = cv2.VideoWriter(os.path.join(videoFolder,videoName),
-                                        fourcc,20.0,(vidShape[1],vidShape[0]))
+                                        fourcc,24.0,(vidShape[1],vidShape[0]))
                 first=False
             out.write(frame)
         vs.release()
