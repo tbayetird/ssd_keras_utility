@@ -22,6 +22,16 @@ def YOLO_generate(dataset_path,destination_dir,percentage_test):
     close(file_train)
     close(file_test)
 
+## Generating a PascalVOC-like dataset from an image folder
+# image_folder : folder containing the images to be used
+# destination_foler : where to generate the dataset 
+def PascalVOC_generate(image_folder,destination_folder='',percentage_test=20):
+    PascalVOC_architecture_generate(image_folder,destination_folder)
+    PascalVOC_set_generate(os.path.join(destination_folder,'Images'),
+                            os.path.join(destination_folder,'ImageSets'),
+                            percentage_test)
+
+
 ## Generating a PascalVOC_like architecture from an image folder
 # image_folder : where to find the images to set up the architecture. Can be empty
 # dest_folder :  where to build the architecture. At default, image_folder.
@@ -45,7 +55,7 @@ def PascalVOC_architecture_generate(image_folder,dest_folder=''):
 # dataset_path : path to the folder containing the images
 # destination : path to the folder that is to contain the sets
 # percentage_test : percentage of the data that is to be used as test set
-def PascalVOC_generate(dataset_path,destination_dir,percentage_test):
+def PascalVOC_set_generate(dataset_path,destination_dir,percentage_test):
     file_train = open(os.path.join(destination_dir,'train.txt'), 'w')
     file_test = open(os.path.join(destination_dir,'test.txt'), 'w')
     file_val =  open(os.path.join(destination_dir,'val.txt'), 'w')
