@@ -1,5 +1,9 @@
-from config import flowers,pirogues_mer,pirogues_plage
-from ssd_test import test_config
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--name", required=True,
+	help="name of the configuration file related to the dataset to be tested")
+args = vars(ap.parse_args())
 
-test_config(pirogues_plage)
-# test_config(pirogues_mer)
+from utils import generateconfig as gc
+from ssd_test import test_config
+test_config(gc.get_config_from_name(args['name']))

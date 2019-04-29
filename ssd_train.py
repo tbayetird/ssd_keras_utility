@@ -22,7 +22,6 @@ from data_generator.object_detection_2d_data_generator import DataGenerator
 from data_generator.object_detection_2d_geometric_ops import Resize
 from ssd_encoder_decoder.ssd_input_encoder import SSDInputEncoder
 
-from config import flowers
 
 def train_VOC(config) :
     ###################################

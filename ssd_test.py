@@ -72,7 +72,8 @@ def test_config(config):
                                                       'original_labels'},
                                              keep_images_without_gt=False)
 
-    while True :
+    count=0
+    while True and count <dataset_size:
         batch_images, batch_filenames, batch_inverse_transforms, batch_original_images, batch_original_labels = next(predict_generator)
         i=0
         print("Image:", batch_filenames[i])
@@ -128,3 +129,4 @@ def test_config(config):
         print('Number of original boxes : {}'.format(len_orig))
         print('Number of found boxes : {}'.format(len_found))
         plt.show()
+        count+=1

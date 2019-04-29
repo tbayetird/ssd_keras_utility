@@ -1,9 +1,9 @@
-from config import flowers,pirogues_mer,pirogues_plage
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--name", required=True,
+	help="name of the configuration file related to the dataset to be trained")
+args = vars(ap.parse_args())
+
+from utils import generateconfig as gc
 from ssd_train import train_VOC
-from utils import generateset as gs
-
-gs.PascalVOC_set_generate(pirogues_plage.IM_DIR,pirogues_plage.SETS_DIR,20)
-train_VOC(pirogues_plage)
-
-# gs.PascalVOC_set_generate(pirogues_mer.IM_DIR,pirogues_mer.SETS_DIR,20)
-# train_VOC(pirogues_mer)
+train_VOC(gc.get_config_from_name(args['name']))

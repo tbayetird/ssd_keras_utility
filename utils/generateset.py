@@ -1,6 +1,6 @@
 import glob, os
-import filenav as fn
 import shutil
+from . import filenav as fn
 
 def YOLO_generate(dataset_path,destination_dir,percentage_test):
     # Create and/or truncate train.txt and test.txt
@@ -24,8 +24,10 @@ def YOLO_generate(dataset_path,destination_dir,percentage_test):
 
 ## Generating a PascalVOC-like dataset from an image folder
 # image_folder : folder containing the images to be used
-# destination_foler : where to generate the dataset 
+# destination_foler : where to generate the dataset
 def PascalVOC_generate(image_folder,destination_folder='',percentage_test=20):
+    if(destination_folder==''):
+        destination_folder=image_folder
     PascalVOC_architecture_generate(image_folder,destination_folder)
     PascalVOC_set_generate(os.path.join(destination_folder,'Images'),
                             os.path.join(destination_folder,'ImageSets'),
@@ -41,7 +43,7 @@ def PascalVOC_architecture_generate(image_folder,dest_folder=''):
     if not (fn.exist(dest_folder,'Images')):
         os.mkdir(os.path.join(dest_folder,'Images'))
     if not (fn.exist(dest_folder,'ImageSets')):
-        os.mkdir(os.path.join(dest_folder,'Imagesets'))
+        os.mkdir(os.path.join(dest_folder,'ImageSets'))
     if not (fn.exist(dest_folder,'Annotations')):
         os.mkdir(os.path.join(dest_folder,'Annotations'))
     for im in fn.findAllIn(image_folder):
