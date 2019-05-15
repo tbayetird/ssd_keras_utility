@@ -29,7 +29,8 @@ from utils import vidutils as vd
 def inference_on_folder(model_config,
                         folder_path,
                         SHOW_ALL=False,
-                        confidence_threshold=0.5
+                        confidence_threshold=0.5,
+                        DISPLAY=True
                         ):
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
@@ -69,11 +70,13 @@ def inference_on_folder(model_config,
                                    normalize_coords=normalize_coords,
                                    img_height=img_height,
                                    img_width=img_width)
+
+    print("[INFO] add predictions and display ...")
     np.set_printoptions(precision=2, suppress=True, linewidth=90)
 
     classes = model_config.CLASSES
     colors = plt.cm.hsv(np.linspace(0, 1, len(classes))).tolist()
-
+    
     for i in range(len(orig_images)):
         if(len(y_pred_decoded[i]) != 0 or SHOW_ALL ):
             # print(len(y_pred_decoded[i]))
@@ -90,7 +93,8 @@ def inference_on_folder(model_config,
                 label = '{}: {:.2f}'.format(classes[int(box[0])], box[1])
                 current_axis.add_patch(plt.Rectangle((xmin, ymin), xmax-xmin, ymax-ymin, color=color, fill=False, linewidth=2))
                 current_axis.text(xmin, ymin, label, size='x-large', color='white', bbox={'facecolor':color, 'alpha':1.0})
-            plt.show()
+            if (DISPLAY):
+                plt.show()
 
 def inference_on_image(model_config,image_path):
     img_shape=model_config.IMG_SHAPE
