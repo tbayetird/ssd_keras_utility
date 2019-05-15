@@ -22,9 +22,10 @@ from data_generator.object_detection_2d_photometric_ops import ConvertTo3Channel
 from data_generator.object_detection_2d_geometric_ops import Resize
 from data_generator.object_detection_2d_misc_utils import apply_inverse_transforms
 
-from config.models import ssd300_pirogues_mer
+from config.models import ssd300_pirogues_mer ,ssd300_pirogues_plage,ssd300_road
 from utils import filenav as fn
 from utils import vidutils as vd
+from utils.objecttracker import ObjectTracker
 
 def inference_on_folder(model_config,
                         folder_path,
@@ -161,7 +162,8 @@ def inference_on_video(model_config,
                        video_path,
                        Display=True,
                        change_save_dir=False,
-                       confidence_threshold=0.5):
+                       confidence_threshold=0.5,
+                       tracking=False):
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
     img_width = img_shape[1] # Width of the model input images
@@ -210,20 +212,25 @@ def inference_on_video(model_config,
     ### APPLYING PREDICTIONS ON IMAGES
     ##################################
     print("[INFO] Applying predictions ")
-    y_pred_decoded=decode_detections(y_pred,
-                                   confidence_thresh=confidence_threshold,
-                                   iou_threshold=0.4,
-                                   top_k=200,
-                                   normalize_coords=normalize_coords,
-                                   img_height=img_height,
-                                   img_width=img_width)
+    try :
+        y_pred_decoded=decode_detections(y_pred,
+                                       confidence_thresh=confidence_threshold,
+                                       iou_threshold=0.4,
+                                       top_k=200,
+                                       normalize_coords=normalize_coords,
+                                       img_height=img_height,
+                                       img_width=img_width)
+    except IndexError:
+        y_pred_decoded = y_pred_thresh
+        pass
 
     # Set the colors for the bounding boxes
     classes = model_config.CLASSES
     colors = plt.cm.hsv(np.linspace(0, 1, len(classes))).tolist()
+    ot = ObjectTracker()
     for i in range(len(y_pred_decoded)):
         img=orig_images[i]
-        # print(len(y_pred_decoded[i]))
+        rects=[]
         for box in y_pred_decoded[i]:
             # Transform the predicted bounding boxes for the 300x300 image to the original image dimensions.
             xmin = int(box[2] * orig_images[i].shape[1] / img_width)
@@ -234,6 +241,24 @@ def inference_on_video(model_config,
             label = '{}: {:.2f}'.format(classes[int(box[0])], box[1])
             cv2.putText(img,label,(xmin,ymin),cv2.FONT_HERSHEY_SIMPLEX,0.5,color,2)
             cv2.rectangle(img,(xmin,ymin),(xmax,ymax),color,2)
+            rects.append((xmin,ymin,xmax,ymax))
+
+        if (tracking):
+            objects= ot.update(rects)
+            numObj=0
+            for (objectID,object) in objects.items():
+                numObj+=1
+                text = "ID {}".format(objectID)
+                (xmin,ymin,xmax,ymax)=object.getRect()
+                centroid = object.getCentroid()
+                predictedCentroid = object.getPredictedCentroid()
+                cv2.putText(img,text,(xmax-30,ymin),
+                cv2.FONT_HERSHEY_SIMPLEX,0.5,(40,40,255),2)
+                cv2.circle(img,(centroid[0],centroid[1]),4,(0,255,0),-1)
+                cv2.circle(img,(predictedCentroid[0],predictedCentroid[1]),4,(0,0,255),-1)
+                cv2.line(img,(centroid[0],centroid[1]),
+                        (predictedCentroid[0],predictedCentroid[1]),(0,0,255))
+
         out.write(img)
 
     ###################################
@@ -266,10 +291,10 @@ def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_t
     vd.stitch_videos(os.path.join(folder_path,'outputs'),output_name)
 
 
-# inference_on_image(ssd300,'D:\\datas\\pirogues-mer\\test\\DJI_0099.JPG_0_4.JPG')
+# inference_on_image(ssd300_pirogues_plage,'D:\\datas\\pirogues-plage\\63_couleur.JPG')
 # inference_on_folder(ssd300,'D:\\datas\\pirogues-mer\\test\\')
 # inference_on_folder(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\Images')
 # inference_on_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4')
-# inference_on_video(ssd300_pirogues_mer,'D:\\workspace\\Keras\ssd_keras\\data\\Frogger2.mp4')
-# inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000)
+inference_on_video(ssd300_road,'D:\\workspace\\Keras\ssd_keras\\data\\Frogger3.mp4',tracking=True)
+# inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000,50)
 # vd.stitch_videos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0','full_stitched_vid.mp4')
