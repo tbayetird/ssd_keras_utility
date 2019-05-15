@@ -142,4 +142,4 @@ def screenshotVideos(videoPath,outputFolder,screenshotNames,freq,max=100000):
         im_count +=1
     vs.release()
 
-screenshotVideos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','D:\\datas\\pirogues-mer\\videos_parrot\\Images','Disco_0_scr',50)
+# screenshotVideos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','D:\\datas\\pirogues-mer\\videos_parrot\\Images','Disco_0_scr',50)
