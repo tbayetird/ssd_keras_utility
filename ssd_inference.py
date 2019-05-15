@@ -274,7 +274,7 @@ def inference_on_video(model_config,
     del(input_images)
     gc.collect()
 
-def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_thresh):
+def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_thresh,tracking=False):
     #Divide original videos into batches
     folder_path=vd.divideVideo(video_path,batch_size)
     if not (fn.exist(folder_path,'outputs')):
@@ -283,7 +283,7 @@ def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_t
     for (i,batch) in enumerate(fn.findAllIn(folder_path)):
         print('[INFO] : Processing Batch number {}'.format(i))
         vid_path=os.path.join(folder_path,batch)
-        inference_on_video(model_config,vid_path,False,True,conf_thresh)
+        inference_on_video(model_config,vid_path,False,True,conf_thresh,tracking)
     vd.stitch_videos(os.path.join(folder_path,'outputs'),output_name)
 
 
@@ -291,6 +291,6 @@ def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_t
 # inference_on_folder(ssd300,'D:\\datas\\pirogues-mer\\test\\')
 # inference_on_folder(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\Images')
 # inference_on_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4')
-inference_on_video(ssd300_road,'D:\\workspace\\Keras\ssd_keras\\data\\Frogger3.mp4',tracking=True)
-# inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000,50)
+# inference_on_video(ssd300_road,'D:\\workspace\\Keras\\ssd_keras\\data\\Frogger3.mp4',tracking=True)
+inference_on_big_video(ssd300_pirogues_mer,'D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0.mp4','full_stitched_video.mp4',2000,50,tracking=True)
 # vd.stitch_videos('D:\\datas\\pirogues-mer\\videos_parrot\\Disco_0','full_stitched_vid.mp4')
