@@ -5,6 +5,19 @@ from .objects import Object
 import numpy as np
 
 
+def eliminateDouble(tab):
+	returntab=tab[:]
+	copytab = tab[:]
+	deletcount=0
+	for (i,elem) in enumerate(copytab):
+		if i == len(copytab)-1:
+			break
+		if elem in tab[i+1:]:
+			returntab.pop(i-deletcount)
+			deletcount+=1
+	return returntab
+
+
 def treatCentroids(inputCentroids):
 	##TODO : change this to use Non maximum suppression ! (en fonction des labels)
 	D = dist.cdist(np.array(inputCentroids), inputCentroids)
@@ -14,17 +27,30 @@ def treatCentroids(inputCentroids):
 	for (i,rows) in enumerate(D) :
 		if i in toDel:
 			continue
-		for (i,col) in enumerate(rows):
+		for (j,col) in enumerate(rows):
 			if(col<50 and col>0): #TODO : val en param
-				toDel.append(i)
-	outputCentroids = np.zeros((len(inputCentroids)-len(toDel),
+				toDel.append(j)
+	newToDel=eliminateDouble(toDel)
+	outputCentroids = np.zeros((len(inputCentroids)-len(newToDel),
 	 									2), dtype="int")
 	deletedCount=0
 	for (i,rows) in enumerate(D):
-		if i in toDel:
+		if i in newToDel:
 			deletedCount+=1
 			continue
-		outputCentroids[i-deletedCount]=inputCentroids[i]
+		try :
+			outputCentroids[i-deletedCount]=inputCentroids[i]
+		except IndexError :
+			print('Error : IndexError \n ')
+			print('len outputCentroids : ',len(outputCentroids))
+			print('outputCentroids : ',outputCentroids)
+			print('len inputCentroids : ', len(inputCentroids))
+			print('inputCentroids : ',inputCentroids)
+			print('index : ', i )
+			print('todel : ', toDel)
+			print('newtoDel : ',newToDel)
+			print('deletedCount : ', deletedCount)
+
 	return outputCentroids
 
 class ObjectTracker():
@@ -151,7 +177,7 @@ class ObjectTracker():
 			cX = int((startX + endX) / 2.0)
 			cY = int((startY + endY) / 2.0)
 			inputCentroids[i] = (cX, cY)
-		#First of all, sometimes objects can be detected as multple classes
+		#First of all, sometimes objects can be detected as multiple classes
 		#We need to treat the detected objects first
 		inputCentroids=treatCentroids(inputCentroids)
 		# if we are currently not tracking any objects take the input
