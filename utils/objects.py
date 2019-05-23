@@ -85,7 +85,7 @@ class Object():
 
 	### Update-specific methods
 	def update(self,centroid,rect):
-		self.setMaxDistance(200) # NOT GOOD
+		self.setMaxDistance(200) # NOT GOOD - AVOID THIS 
 		self.setDisappeared(0)
 		self.updateCentroid(centroid)
 		self.updateRect(rect)

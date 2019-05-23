@@ -24,6 +24,15 @@ from ssd_encoder_decoder.ssd_input_encoder import SSDInputEncoder
 
 
 def train_VOC(config) :
+    '''
+    Train the given configuration ; the configuration must be constructed
+    according to the utility script found in utils/generateconfig.py. 
+
+    Arguments:
+        config : the configuration of the model to use ; should already be
+            loaded
+
+    '''
     ###################################
     ### PATHS AND PARAMETERS
     ##################################
