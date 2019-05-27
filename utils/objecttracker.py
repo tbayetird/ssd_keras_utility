@@ -6,6 +6,9 @@ import numpy as np
 
 
 def eliminateDouble(tab):
+	# Python have proved to fail the construction of the 'toDel' array in
+	# the treatCentroid function, creating some double insertions. We're
+	# removing them here.
 	returntab=tab[:]
 	copytab = tab[:]
 	deletcount=0
@@ -19,6 +22,7 @@ def eliminateDouble(tab):
 
 
 def treatCentroids(inputCentroids):
+	# Avoid the multiple class detection & double detection.
 	##TODO : change this to use Non maximum suppression ! (en fonction des labels)
 	D = dist.cdist(np.array(inputCentroids), inputCentroids)
 	toDel=[]
@@ -50,12 +54,11 @@ def treatCentroids(inputCentroids):
 			print('todel : ', toDel)
 			print('newtoDel : ',newToDel)
 			print('deletedCount : ', deletedCount)
-
 	return outputCentroids
 
 class ObjectTracker():
 
-	def __init__(self, maxDisappeared=20,maxDistance=200):
+	def __init__(self,maxDisappeared=20,maxDistance=200):
 		# initialize the next unique object ID along with two ordered
 		# dictionaries used to keep track of mapping a given object
 		# ID to its centroid and number of consecutive frames it has
@@ -72,7 +75,8 @@ class ObjectTracker():
 
 
 	def register(self, rect, centroid,maxDistance):
-		# print ("[INFO] -- objet enregistre avec l'ID : {}".format(self.nextObjectID))
+		# store the given [rect, centroid] couple as a registered object. An
+		# objectID is used to identify the given tracked object
 		self.objects[self.nextObjectID] = Object([self.nextObjectID,centroid,rect,maxDistance])
 		self.nextObjectID += 1
 		self.count +=1
@@ -84,9 +88,16 @@ class ObjectTracker():
 		del self.objects[objectID]
 
 	def getTotalDetectedCentroids(self):
+		# returns the total of objects that were detected during all the process
 		return self.count
 
 	def updateTrackedObjects(self,rects,inputCentroids):
+		# Update the list of objects that are tracked . First, estimate the
+		# difference between previous situation and actual situation. Then,
+		# associate the tracked objects their new position, or assume they have
+		# disappread. If needed, we also create new objects corresponding to
+		# new bounding box that have appeared.
+
 		# grab the set of object IDs and corresponding centroids
 		objectIDs = list(self.objects.keys())
 		objectCentroids = list()
@@ -152,6 +163,13 @@ class ObjectTracker():
 		return self.objects
 
 	def update(self, rects):
+		# Update the list of objects. If none is detected, notify all currently
+		# tracked object disparition. If we aren't tracking any objects, create
+		# new objects corresponding to the given bounding box. Else, we're
+		# gonna have to update the already tracked objects with their new
+		# coordonates
+
+
 		# check to see if the list of input bounding box rectangles
 		# is empty
 		if len(rects) == 0:
@@ -177,6 +195,8 @@ class ObjectTracker():
 			cX = int((startX + endX) / 2.0)
 			cY = int((startY + endY) / 2.0)
 			inputCentroids[i] = (cX, cY)
+
+
 		#First of all, sometimes objects can be detected as multiple classes
 		#We need to treat the detected objects first
 		inputCentroids=treatCentroids(inputCentroids)

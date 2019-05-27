@@ -35,6 +35,25 @@ def inference_on_folder(model_config,
                         confidence_threshold=0.5,
                         DISPLAY=True
                         ):
+<<<<<<< HEAD
+=======
+    '''
+    Launches inference from a keras neural network on the specified folder.
+
+    Arguments:
+        model_config : the configuration of the model to use ; should already be
+            loaded
+        folder_path (str) : the path of the folder containing the images we want
+            to infere on
+        SHOW_ALL (bool) : show every picture, even those without detections (may
+            be prone to errors)
+        confidence_threshold (float) : should be between 0 and 1 ; threshold for
+            the predictions selection
+        DISPLAY (bool) : Whether it should display the images after being done
+            or not
+
+    '''
+>>>>>>> 2cd0a45732d277c468b25ca5fe26b7ba9c7dd6ab
     #TODO : check parameters
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
@@ -101,6 +120,15 @@ def inference_on_folder(model_config,
                 plt.show()
 
 def inference_on_image(model_config,image_path):
+    '''
+    Launches inference from a keras neural network on the specified image.
+
+    Arguments:
+        model_config : the configuration of the model to use ; should already be
+            loaded
+        image_path (str) : the path to the image we want to infere on
+
+    '''
     #TODO : check parameters
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
@@ -169,6 +197,26 @@ def inference_on_video(model_config,
                        confidence_threshold=0.5,
                        tracking=False,
                        ot = ObjectTracker()):
+    '''
+    Launches inference from a keras neural network on a video. The output video
+    (input + predictions) will be saved in an output folder.
+
+    Arguments:
+        model_config : the configuration of the model to use ; should already be
+            loaded
+        video_path (str) : the path of the video we want to infere on
+        DISPLAY (bool, optional) : Whether it should display the images after
+        being done or not
+        change_save_dir (bool, optional) : whether we should save the outputs to
+            the output folder root at the root of this file or create an output
+            folder at the source video folder and save it there
+        confidence_threshold (float) : should be between 0 and 1 ; threshold for
+            the predictions selection
+        tracking (bool) : whether we should use our tracking algorithm on the
+            predicted rects
+        ot : an object tracker ; initialized if not provided
+
+    '''
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
     img_width = img_shape[1] # Width of the model input images
@@ -292,6 +340,25 @@ def inference_on_video(model_config,
     gc.collect()
 
 def inference_on_big_video(model_config,video_path,output_name,batch_size,conf_thresh,tracking=False):
+    '''
+    Launches inference from a keras neural network on a big video. The
+    original video will be divided into several smaller videos and the model
+    will infere on those ; then, the predictions will be aded to each
+    sub-video and these will be stiched together to remaketo original one
+
+    Arguments:
+        model_config : the configuration of the model to use ; should already be
+            loaded
+        video_path (str) : the path of the video we want to infere on
+        output_name (str) : name of the final built video
+        batch_size (int) : size of the batches that should be extracted from the
+            original video to construct the sub-videos
+        conf_thresh (float) : should be between 0 and 1 ; threshold for
+            the predictions selection
+        tracking (bool,optional) : whether we should use our tracking algorithm
+            on the predicted rects
+
+    '''
     #TODO : check parameters
     #Divide original videos into batches
     folder_path=vd.divideVideo(video_path,batch_size)

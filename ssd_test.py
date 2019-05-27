@@ -16,6 +16,15 @@ from data_generator.object_detection_2d_photometric_ops import ConvertTo3Channel
 from data_generator.object_detection_2d_misc_utils import apply_inverse_transforms
 
 def test_config(config):
+    '''
+    Test the given configuration ; the configuration should already have been
+    used for training purposes, or this will return an error (see ssd_train.py)
+
+    Arguments:
+        config : the configuration of the model to use ; should already be
+            loaded.
+
+    '''
     local_dir = config.ROOT_FOLDER
     data_dir = config.DATA_DIR
     img_shape=config.IMG_SHAPE
