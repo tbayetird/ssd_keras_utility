@@ -8,7 +8,7 @@ import numpy as np
 def eliminateDouble(tab):
 	# Python have proved to fail the construction of the 'toDel' array in
 	# the treatCentroid function, creating some double insertions. We're
-	# removing them here. 
+	# removing them here.
 	returntab=tab[:]
 	copytab = tab[:]
 	deletcount=0
@@ -54,18 +54,11 @@ def treatCentroids(inputCentroids):
 			print('todel : ', toDel)
 			print('newtoDel : ',newToDel)
 			print('deletedCount : ', deletedCount)
-
 	return outputCentroids
 
 class ObjectTracker():
-    '''
-    Transforms rectangles predictions (output from ssd predictions) into tracked
-	objects, identified by their centroid (center of the bounding box), and their
-	bounding box.
-    '''
 
-
-	def __init__(self, maxDisappeared=20,maxDistance=200):
+	def __init__(self,maxDisappeared=20,maxDistance=200):
 		# initialize the next unique object ID along with two ordered
 		# dictionaries used to keep track of mapping a given object
 		# ID to its centroid and number of consecutive frames it has
