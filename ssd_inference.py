@@ -35,23 +35,6 @@ def inference_on_folder(model_config,
                         confidence_threshold=0.5,
                         DISPLAY=True
                         ):
-        '''
-        Launches inference from a keras neural network
-
-        Arguments:
-            weight_matrix (array): A 2D Numpy array that represents the weight matrix
-                for the matching process. If `(m,n)` is the shape of the weight matrix,
-                it must be `m <= n`. The weights can be integers or floating point
-                numbers. The matching process will maximize, i.e. larger weights are
-                preferred over smaller weights.
-            threshold (float): A float that represents the threshold (i.e. lower bound)
-                that must be met by a pair of elements to produce a match.
-
-        Returns:
-            Two 1D Numpy arrays of equal length that represent the matched indices. The first
-            array contains the indices along the first axis of `weight_matrix`, the second array
-            contains the indices along the second axis.
-        '''
     #TODO : check parameters
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
@@ -255,6 +238,9 @@ def inference_on_video(model_config,
     colors = plt.cm.hsv(np.linspace(0, 1, len(classes))).tolist()
     for i in range(len(y_pred_decoded)):
         img=orig_images[i]
+        mid=int(img.shape[0]/2)
+        max = int(img.shape[1])
+        cv2.line(img,(0,mid),(max,mid),(0,255,0),1)
         rects=[]
         for box in y_pred_decoded[i]:
             # Transform the predicted bounding boxes for the 300x300 image to the original image dimensions.
@@ -266,7 +252,9 @@ def inference_on_video(model_config,
             label = '{}: {:.2f}'.format(classes[int(box[0])], box[1])
             cv2.putText(img,label,(xmin,ymin),cv2.FONT_HERSHEY_SIMPLEX,0.5,color,2)
             cv2.rectangle(img,(xmin,ymin),(xmax,ymax),color,2)
-            rects.append((xmin,ymin,xmax,ymax))
+            # TODO : Put this as an option !
+            if ((ymin + (ymax-ymin)/2) > mid):
+                rects.append((xmin,ymin,xmax,ymax))
 
         if (tracking):
             objects= ot.update(rects)
