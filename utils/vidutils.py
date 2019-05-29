@@ -34,6 +34,33 @@ def handleVideoStreams(vs,save_dir,vidName,img_width,img_height):
         np.save(os.path.join(save_dir,images_stock_name),input_images)
     return [orig_images,input_images,out]
 
+def handleTruncatedVideoStreams(vs,save_dir,vidName,img_width,img_height,truncs):
+    print('     [Debug] Starting video handling ')
+    orig_images = [] # Store the images here.
+    input_images = [] # Store resized versions of the images here.
+    images_stock_name='imstock_'+vidName
+    print('     [Debug] Starting video process ')
+    vid_count=0
+    while(vs.isOpened()):
+    # while(vs.isOpened()):
+        ok,frame=vs.read()
+        vid_count+=1
+        if not ok:
+            break
+        if (vid_count < truncs[0] or vid_count > truncs[1]):
+            continue
+        orig_images.append(frame)
+        vidShape=frame.shape[:2]
+        frame = cv2.resize(frame,(img_width,img_height),interpolation=cv2.INTER_AREA)
+        input_images.append(frame)
+        del frame 
+    print('     [Debug] Starting array construction ')
+    input_images = np.array(input_images)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(os.path.join(save_dir,vidName),
+                                fourcc,24.0,(vidShape[1],vidShape[0]))
+    return [orig_images,input_images,out]
+
 # def handleBigVideoStreams(vs, save_dir,vid_name,img_width,img_height,batch_size):
 #     print('     [DEBUG] Starting video handling')
 #     orig_images = [[]] # Store the images here.
