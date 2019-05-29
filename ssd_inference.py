@@ -15,7 +15,7 @@ def import_keras():
     from keras.models import load_model
     from keras.preprocessing import image
     from keras.optimizers import Adam
-    
+
     from keras_loss_function.keras_ssd_loss import SSDLoss
     from keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
     from keras_layers.keras_layer_DecodeDetections import DecodeDetections
