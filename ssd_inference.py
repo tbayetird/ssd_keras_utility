@@ -35,25 +35,6 @@ def inference_on_folder(model_config,
                         confidence_threshold=0.5,
                         DISPLAY=True
                         ):
-<<<<<<< HEAD
-=======
-    '''
-    Launches inference from a keras neural network on the specified folder.
-
-    Arguments:
-        model_config : the configuration of the model to use ; should already be
-            loaded
-        folder_path (str) : the path of the folder containing the images we want
-            to infere on
-        SHOW_ALL (bool) : show every picture, even those without detections (may
-            be prone to errors)
-        confidence_threshold (float) : should be between 0 and 1 ; threshold for
-            the predictions selection
-        DISPLAY (bool) : Whether it should display the images after being done
-            or not
-
-    '''
->>>>>>> 2cd0a45732d277c468b25ca5fe26b7ba9c7dd6ab
     #TODO : check parameters
     img_shape=model_config.IMG_SHAPE
     img_height = img_shape[0] # Height of the model input images
